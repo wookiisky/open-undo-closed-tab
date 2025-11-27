@@ -6,7 +6,8 @@ const DEFAULT_CONFIG = {
     itemsPerPage: 20,
     popupWidth: 400,
     popupHeight: 600,
-    removeAfterRestore: false
+    removeAfterRestore: false,
+    theme: 'dark'
 };
 
 // DOM元素
@@ -15,6 +16,8 @@ let itemsPerPageInput;
 let popupWidthInput;
 let popupHeightInput;
 let removeAfterRestoreInput;
+let themeDarkInput;
+let themeLightInput;
 let saveBtn;
 let resetBtn;
 let exportBtn;
@@ -32,6 +35,8 @@ document.addEventListener('DOMContentLoaded', () => {
     popupWidthInput = document.getElementById('popupWidth');
     popupHeightInput = document.getElementById('popupHeight');
     removeAfterRestoreInput = document.getElementById('removeAfterRestore');
+    themeDarkInput = document.getElementById('themeDark');
+    themeLightInput = document.getElementById('themeLight');
     saveBtn = document.getElementById('saveBtn');
     resetBtn = document.getElementById('resetBtn');
     exportBtn = document.getElementById('exportBtn');
@@ -61,6 +66,17 @@ function loadConfig() {
         popupWidthInput.value = config.popupWidth;
         popupHeightInput.value = config.popupHeight;
         removeAfterRestoreInput.checked = config.removeAfterRestore;
+        
+        // 设置主题
+        const theme = config.theme || 'dark';
+        if (theme === 'dark') {
+            themeDarkInput.checked = true;
+        } else {
+            themeLightInput.checked = true;
+        }
+        
+        // 应用主题
+        applyTheme(theme);
     });
 }
 
@@ -80,6 +96,18 @@ function bindEvents() {
     importBtn.addEventListener('click', () => importFile.click());
     importFile.addEventListener('change', importData);
     clearBtn.addEventListener('click', clearData);
+    
+    // 主题切换实时预览
+    themeDarkInput.addEventListener('change', () => {
+        if (themeDarkInput.checked) {
+            applyTheme('dark');
+        }
+    });
+    themeLightInput.addEventListener('change', () => {
+        if (themeLightInput.checked) {
+            applyTheme('light');
+        }
+    });
 }
 
 // 保存配置
@@ -100,22 +128,25 @@ function saveConfig() {
         return;
     }
 
-    if (popupWidth < 300 || popupWidth > 800) {
-        showStatus('error', '弹层宽度必须在300-800之间');
+    if (popupWidth < 300 || popupWidth > 600) {
+        showStatus('error', '弹层宽度必须在300-600之间');
         return;
     }
 
-    if (popupHeight < 400 || popupHeight > 800) {
-        showStatus('error', '弹层高度必须在400-800之间');
+    if (popupHeight < 200 || popupHeight > 480) {
+        showStatus('error', '弹层高度必须在200-480之间');
         return;
     }
+
+    const theme = themeDarkInput.checked ? 'dark' : 'light';
 
     const config = {
         maxHistorySize,
         itemsPerPage,
         popupWidth,
         popupHeight,
-        removeAfterRestore: removeAfterRestoreInput.checked
+        removeAfterRestore: removeAfterRestoreInput.checked,
+        theme
     };
 
     chrome.storage.sync.set({ config }, () => {
@@ -262,6 +293,11 @@ function clearData() {
             });
         }
     });
+}
+
+// 应用主题
+function applyTheme(theme) {
+    document.body.setAttribute('data-theme', theme);
 }
 
 // 显示状态消息

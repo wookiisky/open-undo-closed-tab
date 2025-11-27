@@ -7,58 +7,54 @@
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    background: linear-gradient(135deg, #1e1e2e 0%, #27273a 100%);
-    color: #e0e0e0;
+    background: #1a1a1a;
+    color: #e5e5e5;
     min-height: 100vh;
-    padding: 40px 20px;
+    padding: 24px 16px;
 }
 
 .container {
-    max-width: 800px;
+    max-width: 720px;
     margin: 0 auto;
 }
 
 /* 头部 */
 .header {
     text-align: center;
-    margin-bottom: 40px;
+    margin-bottom: 24px;
 }
 
 .header h1 {
-    font-size: 32px;
+    font-size: 24px;
     font-weight: 600;
-    margin-bottom: 8px;
-    background: linear-gradient(135deg, #8B5CF6 0%, #3B82F6 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
+    margin-bottom: 6px;
+    color: #22c55e;
 }
 
 .header p {
-    font-size: 14px;
+    font-size: 13px;
     color: #888;
 }
 
 /* 卡片 */
 .card {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    padding: 24px;
-    margin-bottom: 24px;
+    background: #222;
+    border: 1px solid #333;
+    border-radius: 6px;
+    padding: 16px;
+    margin-bottom: 16px;
 }
 
 .card h2 {
-    font-size: 18px;
+    font-size: 15px;
     font-weight: 600;
-    margin-bottom: 20px;
-    color: #e0e0e0;
+    margin-bottom: 14px;
+    color: #e5e5e5;
 }
 
 /* 表单组 */
 .form-group {
-    margin-bottom: 20px;
+    margin-bottom: 14px;
 }
 
 .form-group:last-child {
@@ -67,36 +63,34 @@ body {
 
 .form-group label {
     display: block;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 500;
-    color: #e0e0e0;
-    margin-bottom: 8px;
+    color: #e5e5e5;
+    margin-bottom: 6px;
 }
 
 .label-desc {
     display: block;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 400;
     color: #888;
-    margin-top: 4px;
+    margin-top: 3px;
 }
 
 .form-group input[type="number"] {
     width: 100%;
-    padding: 10px 12px;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
-    color: #e0e0e0;
-    font-size: 14px;
+    padding: 8px 10px;
+    background: #2a2a2a;
+    border: 1px solid #3a3a3a;
+    border-radius: 6px;
+    color: #e5e5e5;
+    font-size: 13px;
     outline: none;
-    transition: all 0.3s ease;
+    transition: border-color 0.2s;
 }
 
 .form-group input[type="number"]:focus {
-    background: rgba(255, 255, 255, 0.12);
-    border-color: rgba(139, 92, 246, 0.5);
-    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+    border-color: #22c55e;
 }
 
 /* 复选框组 */
@@ -105,46 +99,46 @@ body {
     align-items: center;
     gap: 8px;
     cursor: pointer;
-    margin-bottom: 4px;
+    margin-bottom: 3px;
 }
 
 .checkbox-group input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
     cursor: pointer;
-    accent-color: #8B5CF6;
+    accent-color: #22c55e;
 }
 
 .checkbox-group span {
-    font-size: 14px;
+    font-size: 13px;
 }
 
 /* 表单行 */
 .form-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 20px;
+    gap: 12px;
 }
 
 /* 数据操作 */
 .data-actions {
     display: flex;
-    gap: 12px;
+    gap: 8px;
     flex-wrap: wrap;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
 }
 
 .stats {
-    padding: 12px;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 8px;
-    font-size: 13px;
+    padding: 10px;
+    background: #2a2a2a;
+    border-radius: 6px;
+    font-size: 12px;
     color: #888;
     text-align: center;
 }
 
 .stats strong {
-    color: #8B5CF6;
+    color: #22c55e;
     font-weight: 600;
 }
 
@@ -152,72 +146,71 @@ body {
 .primary-btn,
 .secondary-btn,
 .danger-btn {
-    padding: 10px 20px;
+    padding: 8px 16px;
     border: none;
-    border-radius: 8px;
-    font-size: 14px;
+    border-radius: 6px;
+    font-size: 13px;
     font-weight: 500;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.15s;
     display: inline-flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
 }
 
 .primary-btn {
-    background: linear-gradient(135deg, #8B5CF6 0%, #3B82F6 100%);
+    background: #22c55e;
     color: white;
-    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+    border: 1px solid transparent;
 }
 
 .primary-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(139, 92, 246, 0.4);
+    background: #16a34a;
 }
 
 .primary-btn:active {
-    transform: translateY(0);
+    transform: scale(0.98);
 }
 
 .secondary-btn {
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: #e0e0e0;
+    background: #2a2a2a;
+    border: 1px solid #3a3a3a;
+    color: #e5e5e5;
 }
 
 .secondary-btn:hover {
-    background: rgba(255, 255, 255, 0.12);
-    border-color: rgba(255, 255, 255, 0.2);
+    background: #353535;
+    border-color: #4a4a4a;
 }
 
 .danger-btn {
-    background: rgba(239, 68, 68, 0.15);
-    border: 1px solid rgba(239, 68, 68, 0.3);
+    background: #2a1a1a;
+    border: 1px solid #4a2a2a;
     color: #ef4444;
 }
 
 .danger-btn:hover {
-    background: rgba(239, 68, 68, 0.25);
-    border-color: rgba(239, 68, 68, 0.5);
+    background: #3a2020;
+    border-color: #5a3030;
 }
 
 /* 操作区 */
 .actions {
     display: flex;
-    gap: 12px;
+    gap: 8px;
     justify-content: center;
-    margin-top: 32px;
+    margin-top: 20px;
 }
 
 /* 状态提示 */
 .status {
-    margin-top: 24px;
-    padding: 12px 16px;
-    border-radius: 8px;
-    font-size: 14px;
+    margin-top: 16px;
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 13px;
     text-align: center;
     opacity: 0;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.2s;
 }
 
 .status.show {
@@ -225,19 +218,176 @@ body {
 }
 
 .status.success {
-    background: rgba(34, 197, 94, 0.15);
-    border: 1px solid rgba(34, 197, 94, 0.3);
-    color: #22c55e;
+    background: #1a2a1a;
+    border: 1px solid #2a4a2a;
+    color: #4ade80;
 }
 
 .status.error {
-    background: rgba(239, 68, 68, 0.15);
-    border: 1px solid rgba(239, 68, 68, 0.3);
+    background: #2a1a1a;
+    border: 1px solid #4a2a2a;
     color: #ef4444;
+}
+
+/* 单选按钮组 */
+.radio-group {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.radio-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: #2a2a2a;
+    border: 1px solid #3a3a3a;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+    flex: 1;
+    min-width: 120px;
+}
+
+.radio-label:hover {
+    background: #353535;
+    border-color: #4a4a4a;
+}
+
+.radio-label input[type="radio"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: #22c55e;
+}
+
+.radio-label input[type="radio"]:checked + span {
+    color: #22c55e;
+    font-weight: 500;
+}
+
+.radio-label span {
+    font-size: 13px;
+    transition: color 0.15s;
+}
+
+/* 浅色主题 */
+body[data-theme="light"] {
+    background: #fff;
+    color: #1a1a1a;
+}
+
+body[data-theme="light"] .header h1 {
+    color: #22c55e;
+}
+
+body[data-theme="light"] .header p {
+    color: #666;
+}
+
+body[data-theme="light"] .card {
+    background: #fafafa;
+    border: 1px solid #e5e5e5;
+}
+
+body[data-theme="light"] .card h2 {
+    color: #1a1a1a;
+}
+
+body[data-theme="light"] .form-group label {
+    color: #1a1a1a;
+}
+
+body[data-theme="light"] .label-desc {
+    color: #666;
+}
+
+body[data-theme="light"] .form-group input[type="number"] {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    color: #1a1a1a;
+}
+
+body[data-theme="light"] .form-group input[type="number"]:focus {
+    border-color: #22c55e;
+}
+
+body[data-theme="light"] .checkbox-group span {
+    color: #1a1a1a;
+}
+
+body[data-theme="light"] .radio-group {
+    color: #1a1a1a;
+}
+
+body[data-theme="light"] .radio-label {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+}
+
+body[data-theme="light"] .radio-label:hover {
+    background: #e8e8e8;
+    border-color: #c0c0c0;
+}
+
+body[data-theme="light"] .radio-label span {
+    color: #1a1a1a;
+}
+
+body[data-theme="light"] .radio-label input[type="radio"]:checked + span {
+    color: #22c55e;
+}
+
+body[data-theme="light"] .stats {
+    background: #fff;
+    color: #666;
+}
+
+body[data-theme="light"] .stats strong {
+    color: #22c55e;
+}
+
+body[data-theme="light"] .secondary-btn {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    color: #1a1a1a;
+}
+
+body[data-theme="light"] .secondary-btn:hover {
+    background: #e8e8e8;
+    border-color: #c0c0c0;
+}
+
+body[data-theme="light"] .danger-btn {
+    background: #fff5f5;
+    border: 1px solid #fecaca;
+    color: #dc2626;
+}
+
+body[data-theme="light"] .danger-btn:hover {
+    background: #fee;
+    border-color: #fca5a5;
+}
+
+body[data-theme="light"] .status.success {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    color: #16a34a;
+}
+
+body[data-theme="light"] .status.error {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #dc2626;
 }
 
 /* 响应式 */
 @media (max-width: 600px) {
+    body {
+        padding: 16px 12px;
+    }
+
     .form-row {
         grid-template-columns: 1fr;
     }
@@ -249,5 +399,13 @@ body {
     .data-actions button {
         width: 100%;
         justify-content: center;
+    }
+
+    .radio-group {
+        flex-direction: column;
+    }
+
+    .radio-label {
+        min-width: auto;
     }
 }

@@ -9,7 +9,8 @@ let config = {
     itemsPerPage: 20,
     popupWidth: 400,
     popupHeight: 600,
-    removeAfterRestore: false
+    removeAfterRestore: false,
+    theme: 'dark'
 };
 
 // DOM元素
@@ -22,10 +23,11 @@ let emptyState;
 let prevBtn;
 let nextBtn;
 let pageInfo;
+let pageNumbersContainer;
 let settingsBtn;
 
 // 虚拟滚动配置
-const ITEM_HEIGHT = 60; // 每项固定高度
+const ITEM_HEIGHT = 42; // 每项固定高度（更紧凑）
 const BUFFER_SIZE = 5; // 缓冲区大小（上下各5项）
 
 // 初始化
@@ -40,6 +42,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     prevBtn = document.getElementById('prevBtn');
     nextBtn = document.getElementById('nextBtn');
     pageInfo = document.getElementById('pageInfo');
+    pageNumbersContainer = document.getElementById('pageNumbers');
     settingsBtn = document.getElementById('settingsBtn');
 
     // 加载配置
@@ -65,9 +68,16 @@ async function loadConfig() {
             if (result.config) {
                 config = { ...config, ...result.config };
             }
+            // 应用主题
+            applyTheme(config.theme);
             resolve();
         });
     });
+}
+
+// 应用主题
+function applyTheme(theme) {
+    document.body.setAttribute('data-theme', theme || 'dark');
 }
 
 // 应用弹层尺寸
@@ -151,6 +161,52 @@ function getTotalPages() {
     return Math.ceil(filteredTabs.length / config.itemsPerPage);
 }
 
+// 计算要显示的页码数组（最多5个，当前页在中间）
+function calculatePageNumbers(currentPage, totalPages) {
+    if (totalPages <= 5) {
+        // 总页数不超过5个，显示所有页码
+        return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+
+    // 总页数超过5个，智能显示
+    if (currentPage <= 3) {
+        // 当前页在前3页，显示前5页
+        return [1, 2, 3, 4, 5];
+    } else if (currentPage >= totalPages - 2) {
+        // 当前页在后3页，显示后5页
+        return [totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+    } else {
+        // 当前页在中间，显示前后各2页
+        return [currentPage - 2, currentPage - 1, currentPage, currentPage + 1, currentPage + 2];
+    }
+}
+
+// 渲染分页数字
+function renderPageNumbers(currentPageNum, totalPages) {
+    pageNumbersContainer.innerHTML = '';
+    
+    if (totalPages <= 1) {
+        return;
+    }
+
+    const pageNumbers = calculatePageNumbers(currentPageNum, totalPages);
+    
+    pageNumbers.forEach(pageNum => {
+        const pageLink = document.createElement('span');
+        pageLink.className = 'page-number';
+        if (pageNum === currentPageNum) {
+            pageLink.classList.add('active');
+        }
+        pageLink.textContent = pageNum;
+        pageLink.addEventListener('click', () => {
+            currentPage = pageNum;
+            renderCurrentPage();
+            scrollToTop();
+        });
+        pageNumbersContainer.appendChild(pageLink);
+    });
+}
+
 // 渲染当前页
 function renderCurrentPage() {
     const totalPages = getTotalPages();
@@ -159,6 +215,9 @@ function renderCurrentPage() {
     pageInfo.textContent = `${currentPage} / ${totalPages || 1}`;
     prevBtn.disabled = currentPage <= 1;
     nextBtn.disabled = currentPage >= totalPages;
+    
+    // 渲染分页数字
+    renderPageNumbers(currentPage, totalPages);
 
     // 获取当前页的数据
     const startIndex = (currentPage - 1) * config.itemsPerPage;
@@ -187,6 +246,9 @@ function renderVirtualList(tabs) {
 
     // 重置滚动位置
     virtualScrollWrapper.scrollTop = 0;
+
+    // 重置可见范围，强制重新渲染
+    currentVisibleRange = { start: -1, end: -1 };
 
     // 如果项目少于一屏，直接全部渲染
     if (tabs.length <= 10) {

@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Undo Close Tab",
+  "name": "Open Undo Closed Tab",
   "version": "1.0.0",
-  "description": "记录并恢复已关闭的标签页，支持搜索和配置",
+  "description": "closed tab list",
   "permissions": [
     "tabs",
     "storage"
