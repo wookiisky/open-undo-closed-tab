@@ -1,4 +1,4 @@
-# Undo Close Tab - Chrome Extension
+# Open Undo Close Tab - Chrome Extension
 
 A powerful Chrome extension for recording, searching, and restoring closed tabs.
 
@@ -110,16 +110,6 @@ This extension is developed based on Chrome Manifest V3, main technologies:
 - **Chrome Storage API**: Local and sync storage
 - **Virtual Scrolling**: Self-implemented high-performance list rendering solution
 
-## 📝 Changelog
-
-### v1.0.0 (2025)
-- ✨ Initial release
-- ✅ Basic tab recording and restore functionality
-- ✅ Search and pagination features
-- ✅ Virtual scrolling performance optimization
-- ✅ Settings page
-- ✅ Data export/import
-
 ## 📄 License
 
 MIT License
@@ -127,7 +117,3 @@ MIT License
 ## 🤝 Contributing
 
 Issues and Pull Requests are welcome!
-
----
-
-💡 **Tip**: It's recommended to set a keyboard shortcut to quickly open the extension! You can set a keyboard shortcut for this extension at `chrome://extensions/shortcuts`.
