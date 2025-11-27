@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,7 +8,7 @@
 </head>
 <body>
   <div class="container">
-    <!-- 顶部工具栏 -->
+    <!-- Top toolbar -->
     <div class="toolbar">
       <div class="search-wrapper">
         <svg class="search-icon" width="14" height="14" viewBox="0 0 16 16" fill="none">
@@ -19,32 +19,32 @@
           type="text" 
           id="searchInput" 
           class="search-input" 
-          placeholder="搜索标题或URL..."
+          placeholder="Search title or URL..."
         />
       </div>
-      <button id="settingsBtn" class="icon-btn" title="设置">
-        Options
+      <button id="settingsBtn" class="icon-btn" title="Settings">
+        ⚙️
       </button>
     </div>
 
-    <!-- 列表容器 -->
+    <!-- List container -->
     <div class="list-container" id="listContainer">
       <div class="virtual-scroll-wrapper" id="virtualScrollWrapper">
         <div class="virtual-scroll-spacer" id="scrollSpacer"></div>
         <div class="virtual-scroll-content" id="scrollContent"></div>
       </div>
       
-      <!-- 空状态 -->
+      <!-- Empty state -->
       <div class="empty-state" id="emptyState" style="display: none;">
         <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
           <circle cx="32" cy="32" r="28" stroke="currentColor" stroke-width="2" opacity="0.2"/>
           <path d="M32 20V32L40 40" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
         </svg>
-        <p>暂无关闭的标签页</p>
+        <p>No closed tabs</p>
       </div>
     </div>
 
-    <!-- 底部分页控制 -->
+    <!-- Bottom pagination controls -->
     <div class="pagination" id="pagination">
       <button id="prevBtn" class="page-btn" disabled>
         <svg width="14" height="14" viewBox="0 0 16 16" fill="none">

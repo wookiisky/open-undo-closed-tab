@@ -1,131 +1,133 @@
-# Undo Close Tab - Chrome扩展
+# Undo Close Tab - Chrome Extension
 
-一个强大的Chrome扩展，用于记录、搜索和恢复已关闭的标签页。
+A powerful Chrome extension for recording, searching, and restoring closed tabs.
 
-## ✨ 主要功能
+## ✨ Main Features
 
-- 📝 **自动记录**：自动记录所有关闭的标签页（过滤Chrome内部页面）
-- 🔍 **智能搜索**：在标题和URL中快速搜索，支持高亮显示匹配文本
-- 📄 **分页浏览**：支持分页查看大量历史记录
-- ⚡ **高性能**：使用虚拟滚动技术，流畅处理数百条记录
-- ⚙️ **灵活配置**：可自定义保存数量、显示数量、弹层尺寸等
-- 💾 **数据管理**：支持导出、导入和清空历史记录
+- 📝 **Auto Recording**: Automatically records all closed tabs (filters Chrome internal pages)
+- 🔍 **Smart Search**: Quickly search in titles and URLs with highlight matching
+- 📄 **Pagination**: Supports pagination for browsing large history
+- ⚡ **High Performance**: Uses virtual scrolling for smooth handling of hundreds of records
+- ⚙️ **Flexible Configuration**: Customizable storage limit, display count, popup dimensions, etc.
+- 💾 **Data Management**: Supports export, import, and clearing history
 
-## 🚀 安装方法
+## 🚀 Installation
 
-1. 下载或克隆此仓库到本地
-2. 打开Chrome浏览器，访问 `chrome://extensions/`
-3. 开启右上角的「开发者模式」
-4. 点击「加载已解压的扩展程序」
-5. 选择项目根目录 `undo-close-tab`
-6. 扩展安装完成！
+1. Download or clone this repository to local
+2. Open Chrome browser and visit `chrome://extensions/`
+3. Enable "Developer mode" in the top right corner
+4. Click "Load unpacked extension"
+5. Select the project root directory `undo-close-tab`
+6. Extension installed!
 
-## 📖 使用指南
+## 📖 User Guide
 
-### 基本使用
+### Basic Usage
 
-1. **查看关闭的标签页**
-   - 点击工具栏上的扩展图标
-   - 弹出页面会显示所有已关闭的标签页列表
-   - 每项显示标题、URL和关闭时间
+1. **View Closed Tabs**
+   - Click the extension icon in the toolbar
+   - The popup shows all closed tabs
+   - Each item displays title, URL, and close time
 
-2. **恢复标签页**
-   - 在列表中点击任意项即可恢复该标签页
-   - 恢复后可选择是否从列表中删除该记录（在设置中配置）
+2. **Restore Tabs**
+   - Click any item in the list to restore that tab
+   - Optionally remove from list after restore (configure in settings)
 
-3. **搜索功能**
-   - 在顶部搜索框输入关键词
-   - 搜索会实时过滤标题和URL中包含关键词的标签页
-   - 匹配的文本会高亮显示
+3. **Search Function**
+   - Enter keywords in the top search box
+   - Search filters tabs containing keywords in title or URL in real-time
+   - Matching text is highlighted
 
-4. **分页浏览**
-   - 使用底部的分页按钮切换页面
-   - 页码显示当前页和总页数
+4. **Pagination**
+   - Use bottom pagination buttons to switch pages
+   - Page number shows current page and total pages
 
-### 高级配置
+### Advanced Configuration
 
-点击弹出页面右上角的设置按钮⚙️，进入配置页面：
+Click the settings button ⚙️ in the top right of the popup to enter the configuration page:
 
-#### 基本设置
-- **最大保存数量**：设置保留的已关闭标签页数量上限（10-5000，默认500）
-- **每页显示数量**：设置弹出页面列表每页显示的数量（5-100，默认20）
-- **恢复后删除记录**：勾选后，打开标签页会自动从历史中移除
+#### Basic Settings
+- **Max History Size**: Set the maximum number of closed tabs to keep (10-5000, default 500)
+- **Items Per Page**: Set number of tabs to display per page in popup (5-100, default 20)
+- **Remove After Restore**: When checked, tabs are automatically removed from history after opening
 
-#### 弹层外观
-- **弹层宽度**：自定义弹出窗口宽度（300-800px，默认400px）
-- **弹层高度**：自定义弹出窗口高度（400-800px，默认600px）
+#### Popup Appearance
+- **Theme Selection**: Choose dark or light theme
+- **Popup Width**: Customize popup window width (300-600px, default 400px)
+- **Popup Height**: Customize popup window height (200-480px, default 600px)
 
-#### 数据管理
-- **导出记录**：将所有历史记录导出为JSON文件
-- **导入记录**：从JSON文件导入历史记录（支持合并去重）
-- **清空所有记录**：删除所有已保存的历史记录
+#### Data Management
+- **Export History**: Export all history records as JSON file
+- **Import History**: Import history records from JSON file (supports merge and deduplication)
+- **Clear All History**: Delete all saved history records
 
-## 🎨 技术特点
+## 🎨 Technical Features
 
-### 性能优化
-- **虚拟滚动**：只渲染可见区域的DOM元素，支持流畅滚动数百条记录
-- **搜索防抖**：300ms防抖延迟，减少不必要的计算
-- **智能缓存**：缓存标签页信息，减少storage读取
+### Performance Optimization
+- **Virtual Scrolling**: Only renders DOM elements in visible area, supports smooth scrolling through hundreds of records
+- **Search Debouncing**: 300ms debounce delay reduces unnecessary calculations
+- **Smart Caching**: Caches tab information, reduces storage reads
 
-### 设计特色
-- **现代化深色主题**：采用渐变背景和玻璃态效果
-- **平滑动画**：所有交互都有流畅的过渡效果
-- **响应式设计**：适配不同尺寸窗口
+### Design Features
+- **Modern Dark Theme**: Uses gradient background and glassmorphism effects
+- **Smooth Animations**: All interactions have smooth transitions
+- **Responsive Design**: Adapts to different window sizes
 
-## 📂 项目结构
+## 📂 Project Structure
 
 ```
 undo-close-tab/
-├── manifest.json           # 扩展配置文件
-├── background.js           # 后台服务worker
+├── manifest.json           # Extension configuration file
+├── background.js           # Background service worker
 ├── popup/
-│   ├── popup.html         # 弹出页面
-│   ├── popup.css          # 弹出页面样式
-│   └── popup.js           # 弹出页面逻辑（含虚拟滚动）
+│   ├── popup.html         # Popup page
+│   ├── popup.css          # Popup page styles
+│   └── popup.js           # Popup page logic (with virtual scrolling)
 ├── options/
-│   ├── options.html       # 配置页面
-│   ├── options.css        # 配置页面样式
-│   └── options.js         # 配置页面逻辑
+│   ├── options.html       # Options page
+│   ├── options.css        # Options page styles
+│   └── options.js         # Options page logic
 └── icons/
-    ├── icon16.png         # 16x16图标
-    ├── icon48.png         # 48x48图标
-    └── icon128.png        # 128x128图标
+    ├── icon16.png         # 16x16 icon
+    ├── icon32.png         # 32x32 icon
+    ├── icon48.png         # 48x48 icon
+    └── icon128.png        # 128x128 icon
 ```
 
-## 🔒 隐私说明
+## 🔒 Privacy Statement
 
-- 所有数据都存储在本地（`chrome.storage.local`和`chrome.storage.sync`）
-- 不会向任何外部服务器发送数据
-- 仅收集关闭的标签页信息（标题、URL、关闭时间、图标）
-- 自动过滤Chrome内部页面（chrome://、edge://等）
+- All data is stored locally (`chrome.storage.local` and `chrome.storage.sync`)
+- No data is sent to any external servers
+- Only collects closed tab information (title, URL, close time, icon)
+- Automatically filters Chrome internal pages (chrome://, edge://, etc.)
 
-## 🛠️ 开发说明
+## 🛠️ Development Notes
 
-本扩展基于Chrome Manifest V3开发，主要技术：
+This extension is developed based on Chrome Manifest V3, main technologies:
 
-- **Manifest V3**：最新的Chrome扩展规范
-- **Service Worker**：后台服务，替代传统background页面
-- **Chrome Storage API**：本地和同步存储
-- **虚拟滚动**：自实现的高性能列表渲染方案
+- **Manifest V3**: Latest Chrome extension specification
+- **Service Worker**: Background service, replaces traditional background page
+- **Chrome Storage API**: Local and sync storage
+- **Virtual Scrolling**: Self-implemented high-performance list rendering solution
 
-## 📝 更新日志
+## 📝 Changelog
 
 ### v1.0.0 (2025)
-- ✨ 首次发布
-- ✅ 基本的标签页记录和恢复功能
-- ✅ 搜索和分页功能
-- ✅ 虚拟滚动性能优化
-- ✅ 配置页面
-- ✅ 数据导出/导入
+- ✨ Initial release
+- ✅ Basic tab recording and restore functionality
+- ✅ Search and pagination features
+- ✅ Virtual scrolling performance optimization
+- ✅ Settings page
+- ✅ Data export/import
 
-## 📄 许可证
+## 📄 License
 
 MIT License
 
-## 🤝 贡献
+## 🤝 Contributing
 
-欢迎提交Issue和Pull Request！
+Issues and Pull Requests are welcome!
 
 ---
 
-💡 **提示**：推荐设置一个快捷键来快速打开扩展！在 `chrome://extensions/shortcuts` 中可以为此扩展设置键盘快捷键。
+💡 **Tip**: It's recommended to set a keyboard shortcut to quickly open the extension! You can set a keyboard shortcut for this extension at `chrome://extensions/shortcuts`.

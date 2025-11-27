@@ -1,6 +1,6 @@
-// popup.js - 弹出页面逻辑
+// popup.js - Popup page logic
 
-// 全局状态
+// Global state
 let allClosedTabs = [];
 let filteredTabs = [];
 let currentPage = 1;
@@ -13,7 +13,7 @@ let config = {
     theme: 'dark'
 };
 
-// DOM元素
+// DOM elements
 let searchInput;
 let listContainer;
 let virtualScrollWrapper;
@@ -26,13 +26,13 @@ let pageInfo;
 let pageNumbersContainer;
 let settingsBtn;
 
-// 虚拟滚动配置
-const ITEM_HEIGHT = 42; // 每项固定高度（更紧凑）
-const BUFFER_SIZE = 5; // 缓冲区大小（上下各5项）
+// Virtual scroll configuration
+const ITEM_HEIGHT = 42; // Fixed height per item (compact)
+const BUFFER_SIZE = 5; // Buffer size (5 items above and below)
 
-// 初始化
+// Initialize
 document.addEventListener('DOMContentLoaded', async () => {
-    // 获取DOM元素
+    // Get DOM elements
     searchInput = document.getElementById('searchInput');
     listContainer = document.getElementById('listContainer');
     virtualScrollWrapper = document.getElementById('virtualScrollWrapper');
@@ -45,42 +45,42 @@ document.addEventListener('DOMContentLoaded', async () => {
     pageNumbersContainer = document.getElementById('pageNumbers');
     settingsBtn = document.getElementById('settingsBtn');
 
-    // 加载配置
+    // Load configuration
     await loadConfig();
 
-    // 应用弹层尺寸配置
+    // Apply popup size configuration
     applyPopupSize();
 
-    // 加载数据
+    // Load data
     await loadClosedTabs();
 
-    // 绑定事件
+    // Bind events
     bindEvents();
 
-    // 初始渲染
+    // Initial render
     renderCurrentPage();
 });
 
-// 加载配置
+// Load configuration
 async function loadConfig() {
     return new Promise((resolve) => {
         chrome.storage.sync.get('config', (result) => {
             if (result.config) {
                 config = { ...config, ...result.config };
             }
-            // 应用主题
+            // Apply theme
             applyTheme(config.theme);
             resolve();
         });
     });
 }
 
-// 应用主题
+// Apply theme
 function applyTheme(theme) {
     document.body.setAttribute('data-theme', theme || 'dark');
 }
 
-// 应用弹层尺寸
+// Apply popup size
 function applyPopupSize() {
     if (config.popupWidth && config.popupHeight) {
         document.body.style.width = `${config.popupWidth}px`;
@@ -88,7 +88,7 @@ function applyPopupSize() {
     }
 }
 
-// 加载关闭的标签页
+// Load closed tabs
 async function loadClosedTabs() {
     return new Promise((resolve) => {
         chrome.runtime.sendMessage({ action: 'getClosedTabs' }, (response) => {
@@ -99,9 +99,9 @@ async function loadClosedTabs() {
     });
 }
 
-// 绑定事件
+// Bind events
 function bindEvents() {
-    // 搜索框 - 使用防抖
+    // Search box - use debounce
     let searchTimeout;
     searchInput.addEventListener('input', (e) => {
         clearTimeout(searchTimeout);
@@ -110,7 +110,7 @@ function bindEvents() {
         }, 300);
     });
 
-    // 分页按钮
+    // Pagination buttons
     prevBtn.addEventListener('click', () => {
         if (currentPage > 1) {
             currentPage--;
@@ -128,16 +128,16 @@ function bindEvents() {
         }
     });
 
-    // 设置按钮
+    // Settings button
     settingsBtn.addEventListener('click', () => {
         chrome.runtime.openOptionsPage();
     });
 
-    // 虚拟滚动
+    // Virtual scroll
     virtualScrollWrapper.addEventListener('scroll', handleScroll);
 }
 
-// 处理搜索
+// Handle search
 function handleSearch(query) {
     const lowerQuery = query.toLowerCase().trim();
 
@@ -151,37 +151,37 @@ function handleSearch(query) {
         });
     }
 
-    // 重置到第一页
+    // Reset to first page
     currentPage = 1;
     renderCurrentPage();
 }
 
-// 获取总页数
+// Get total pages
 function getTotalPages() {
     return Math.ceil(filteredTabs.length / config.itemsPerPage);
 }
 
-// 计算要显示的页码数组（最多5个，当前页在中间）
+// Calculate page numbers to display (max 5, current page in the middle)
 function calculatePageNumbers(currentPage, totalPages) {
     if (totalPages <= 5) {
-        // 总页数不超过5个，显示所有页码
+        // Total pages not exceeding 5, show all pages
         return Array.from({ length: totalPages }, (_, i) => i + 1);
     }
 
-    // 总页数超过5个，智能显示
+    // Total pages exceeding 5, smart display
     if (currentPage <= 3) {
-        // 当前页在前3页，显示前5页
+        // Current page in first 3 pages, show first 5 pages
         return [1, 2, 3, 4, 5];
     } else if (currentPage >= totalPages - 2) {
-        // 当前页在后3页，显示后5页
+        // Current page in last 3 pages, show last 5 pages
         return [totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
     } else {
-        // 当前页在中间，显示前后各2页
+        // Current page in the middle, show 2 pages before and after
         return [currentPage - 2, currentPage - 1, currentPage, currentPage + 1, currentPage + 2];
     }
 }
 
-// 渲染分页数字
+// Render page numbers
 function renderPageNumbers(currentPageNum, totalPages) {
     pageNumbersContainer.innerHTML = '';
     
@@ -207,24 +207,24 @@ function renderPageNumbers(currentPageNum, totalPages) {
     });
 }
 
-// 渲染当前页
+// Render current page
 function renderCurrentPage() {
     const totalPages = getTotalPages();
 
-    // 更新分页信息
+    // Update pagination info
     pageInfo.textContent = `${currentPage} / ${totalPages || 1}`;
     prevBtn.disabled = currentPage <= 1;
     nextBtn.disabled = currentPage >= totalPages;
     
-    // 渲染分页数字
+    // Render page numbers
     renderPageNumbers(currentPage, totalPages);
 
-    // 获取当前页的数据
+    // Get current page data
     const startIndex = (currentPage - 1) * config.itemsPerPage;
     const endIndex = startIndex + config.itemsPerPage;
     const currentPageTabs = filteredTabs.slice(startIndex, endIndex);
 
-    // 显示/隐藏空状态
+    // Show/hide empty state
     if (filteredTabs.length === 0) {
         emptyState.style.display = 'flex';
         virtualScrollWrapper.style.display = 'none';
@@ -234,32 +234,32 @@ function renderCurrentPage() {
         virtualScrollWrapper.style.display = 'block';
     }
 
-    // 使用虚拟滚动渲染
+    // Render using virtual scroll
     renderVirtualList(currentPageTabs);
 }
 
-// 虚拟滚动渲染
+// Virtual scroll render
 function renderVirtualList(tabs) {
-    // 设置滚动区域总高度
+    // Set total scroll area height
     const totalHeight = tabs.length * ITEM_HEIGHT;
     scrollSpacer.style.height = `${totalHeight}px`;
 
-    // 重置滚动位置
+    // Reset scroll position
     virtualScrollWrapper.scrollTop = 0;
 
-    // 重置可见范围，强制重新渲染
+    // Reset visible range, force re-render
     currentVisibleRange = { start: -1, end: -1 };
 
-    // 如果项目少于一屏，直接全部渲染
+    // If items less than one screen, render all directly
     if (tabs.length <= 10) {
         renderAllItems(tabs);
     } else {
-        // 初始渲染可见项
+        // Initial render of visible items
         renderVisibleItems(tabs, 0);
     }
 }
 
-// 渲染所有项（少量数据时）
+// Render all items (when data is small)
 function renderAllItems(tabs) {
     scrollContent.innerHTML = '';
     scrollContent.style.transform = 'translateY(0px)';
@@ -273,31 +273,31 @@ function renderAllItems(tabs) {
     scrollContent.appendChild(fragment);
 }
 
-// 渲染可见项（虚拟滚动）
+// Render visible items (virtual scroll)
 let currentVisibleRange = { start: 0, end: 0 };
 
 function renderVisibleItems(tabs, scrollTop) {
     const containerHeight = virtualScrollWrapper.clientHeight;
 
-    // 计算可见范围
+    // Calculate visible range
     const startIndex = Math.floor(scrollTop / ITEM_HEIGHT);
     const endIndex = Math.ceil((scrollTop + containerHeight) / ITEM_HEIGHT);
 
-    // 添加缓冲区
+    // Add buffer
     const bufferedStart = Math.max(0, startIndex - BUFFER_SIZE);
     const bufferedEnd = Math.min(tabs.length, endIndex + BUFFER_SIZE);
 
-    // 如果范围没变，不重新渲染
+    // If range unchanged, don't re-render
     if (bufferedStart === currentVisibleRange.start && bufferedEnd === currentVisibleRange.end) {
         return;
     }
 
     currentVisibleRange = { start: bufferedStart, end: bufferedEnd };
 
-    // 清空并渲染新的可见项
+    // Clear and render new visible items
     scrollContent.innerHTML = '';
 
-    // 设置偏移
+    // Set offset
     scrollContent.style.transform = `translateY(${bufferedStart * ITEM_HEIGHT}px)`;
 
     const fragment = document.createDocumentFragment();
@@ -309,7 +309,7 @@ function renderVisibleItems(tabs, scrollTop) {
     scrollContent.appendChild(fragment);
 }
 
-// 处理滚动事件
+// Handle scroll event
 let scrollTimeout;
 function handleScroll() {
     clearTimeout(scrollTimeout);
@@ -326,13 +326,13 @@ function handleScroll() {
     }, 16); // ~60fps
 }
 
-// 创建标签页项
+// Create tab item
 function createTabItem(tab, index) {
     const item = document.createElement('div');
     item.className = 'tab-item';
     item.style.height = `${ITEM_HEIGHT}px`;
 
-    // 图标
+    // Icon
     const favicon = document.createElement('img');
     favicon.className = 'tab-favicon';
     if (tab.favIconUrl) {
@@ -346,11 +346,11 @@ function createTabItem(tab, index) {
         favicon.classList.add('default-icon');
     }
 
-    // 信息容器
+    // Info container
     const info = document.createElement('div');
     info.className = 'tab-info';
 
-    // 标题
+    // Title
     const title = document.createElement('div');
     title.className = 'tab-title';
     title.innerHTML = highlightText(tab.title, searchInput.value);
@@ -363,7 +363,7 @@ function createTabItem(tab, index) {
     info.appendChild(title);
     info.appendChild(url);
 
-    // 时间
+    // Time
     const time = document.createElement('div');
     time.className = 'tab-time';
     time.textContent = formatTime(tab.closedAt);
@@ -372,7 +372,7 @@ function createTabItem(tab, index) {
     item.appendChild(info);
     item.appendChild(time);
 
-    // 点击事件
+    // Click event
     item.addEventListener('click', () => {
         openTab(tab);
     });
@@ -380,7 +380,7 @@ function createTabItem(tab, index) {
     return item;
 }
 
-// 高亮文本
+// Highlight text
 function highlightText(text, query) {
     if (!query || !query.trim()) {
         return escapeHtml(text);
@@ -393,14 +393,14 @@ function highlightText(text, query) {
     return escapedText.replace(regex, '<span class="highlight">$1</span>');
 }
 
-// 转义HTML
+// Escape HTML
 function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
 }
 
-// 格式化时间
+// Format time
 function formatTime(timestamp) {
     const now = Date.now();
     const diff = now - timestamp;
@@ -411,40 +411,40 @@ function formatTime(timestamp) {
     const days = Math.floor(hours / 24);
 
     if (seconds < 60) {
-        return '刚刚';
+        return 'just now';
     } else if (minutes < 60) {
-        return `${minutes}分钟前`;
+        return `${minutes} min ago`;
     } else if (hours < 24) {
-        return `${hours}小时前`;
+        return `${hours} hr ago`;
     } else if (days < 7) {
-        return `${days}天前`;
+        return `${days} days ago`;
     } else {
         const date = new Date(timestamp);
         return `${date.getMonth() + 1}/${date.getDate()}`;
     }
 }
 
-// 获取默认图标
+// Get default favicon
 function getDefaultFavicon() {
-    // 使用SVG data URL作为默认图标
+    // Use SVG data URL as default icon
     return 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="%23555"/><text x="8" y="12" font-size="10" text-anchor="middle" fill="%23fff">📄</text></svg>';
 }
 
-// 打开标签页
+// Open tab
 async function openTab(tab) {
     try {
         await chrome.tabs.create({ url: tab.url });
 
-        // 如果配置为恢复后删除
+        // If configured to remove after restore
         if (config.removeAfterRestore) {
             chrome.runtime.sendMessage({
                 action: 'removeClosedTab',
                 tabId: tab.id
             }, async () => {
-                // 重新加载数据
+                // Reload data
                 await loadClosedTabs();
 
-                // 如果当前搜索框有内容，重新应用搜索
+                // If search box has content, re-apply search
                 if (searchInput.value.trim()) {
                     handleSearch(searchInput.value);
                 } else {
@@ -453,12 +453,12 @@ async function openTab(tab) {
             });
         }
     } catch (error) {
-        console.error('打开标签页失败:', error);
-        alert('无法打开此URL');
+        console.error('Failed to open tab:', error);
+        alert('Unable to open this URL');
     }
 }
 
-// 滚动到顶部
+// Scroll to top
 function scrollToTop() {
     virtualScrollWrapper.scrollTop = 0;
 }

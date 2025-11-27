@@ -1,4 +1,4 @@
-/* 重置和基础样式 */
+/* Reset and base styles */
 * {
   margin: 0;
   padding: 0;
@@ -25,7 +25,7 @@ body {
   min-height: 0;
 }
 
-/* 工具栏样式 */
+/* Toolbar styles */
 .toolbar {
   display: flex;
   gap: 6px;
@@ -98,7 +98,7 @@ body {
   transform: scale(0.95);
 }
 
-/* 列表容器 */
+/* List container */
 .list-container {
   flex: 1;
   overflow: hidden;
@@ -147,7 +147,7 @@ body {
   will-change: transform;
 }
 
-/* 列表项 */
+/* List item */
 .tab-item {
   padding: 6px 10px;
   border-bottom: 1px solid #252525;
@@ -227,7 +227,7 @@ body {
   margin-top: 0px;
 }
 
-/* 空状态 */
+/* Empty state */
 .empty-state {
   display: flex;
   flex-direction: column;
@@ -247,7 +247,7 @@ body {
   font-size: 13px;
 }
 
-/* 分页控制 */
+/* Pagination controls */
 .pagination {
   display: flex;
   align-items: center;
@@ -335,7 +335,7 @@ body {
   line-height: 1;
 }
 
-/* 加载动画 */
+/* Loading animation */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -352,7 +352,7 @@ body {
   animation: fadeIn 0.3s ease;
 }
 
-/* 浅色主题 */
+/* Light theme */
 body[data-theme="light"] {
   background: #fff;
   color: #1a1a1a;

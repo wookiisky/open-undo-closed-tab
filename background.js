@@ -1,6 +1,6 @@
-// 后台服务worker - 监听标签页关闭并存储
+// Background service worker - Listen for tab closures and store them
 
-// 默认配置
+// Default configuration
 const DEFAULT_CONFIG = {
   maxHistorySize: 500,
   itemsPerPage: 20,
@@ -9,7 +9,7 @@ const DEFAULT_CONFIG = {
   removeAfterRestore: false
 };
 
-// 初始化：设置默认配置
+// Initialize: set default configuration
 chrome.runtime.onInstalled.addListener(() => {
   chrome.storage.sync.get('config', (result) => {
     if (!result.config) {
@@ -18,23 +18,23 @@ chrome.runtime.onInstalled.addListener(() => {
   });
 });
 
-// 监听标签页关闭事件
+// Listen for tab close events
 chrome.tabs.onRemoved.addListener(async (tabId, removeInfo) => {
-  // 获取被关闭的标签页信息
-  // 注意：在onRemoved事件中无法直接获取tab信息，需要在beforeunload时记录
-  // 所以我们使用onUpdated来追踪标签页信息
+  // Get closed tab information
+  // Note: Cannot directly get tab info in onRemoved event, need to record it beforehand
+  // So we use onUpdated to track tab information
 });
 
-// 监听标签页更新，记录标签页信息以便关闭时使用
+// Listen for tab updates, record tab information for use when closing
 const tabsCache = new Map();
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  // 过滤Chrome内部页面
+  // Filter Chrome internal pages
   if (isInternalPage(tab.url)) {
     return;
   }
   
-  // 缓存标签页信息
+  // Cache tab information
   if (changeInfo.status === 'complete' || changeInfo.title) {
     tabsCache.set(tabId, {
       title: tab.title,
@@ -44,7 +44,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   }
 });
 
-// 监听标签页激活
+// Listen for tab activation
 chrome.tabs.onActivated.addListener(async (activeInfo) => {
   const tab = await chrome.tabs.get(activeInfo.tabId);
   if (!isInternalPage(tab.url)) {
@@ -56,7 +56,7 @@ chrome.tabs.onActivated.addListener(async (activeInfo) => {
   }
 });
 
-// 改进的关闭监听
+// Improved close listener
 chrome.tabs.onRemoved.addListener(async (tabId, removeInfo) => {
   const tabInfo = tabsCache.get(tabId);
   
@@ -64,29 +64,29 @@ chrome.tabs.onRemoved.addListener(async (tabId, removeInfo) => {
     return;
   }
   
-  // 过滤Chrome内部页面
+  // Filter Chrome internal pages
   if (isInternalPage(tabInfo.url)) {
     tabsCache.delete(tabId);
     return;
   }
   
-  // 创建关闭记录
+  // Create closed record
   const closedTab = {
     id: `${Date.now()}_${generateUUID()}`,
-    title: tabInfo.title || '未命名',
+    title: tabInfo.title || 'Untitled',
     url: tabInfo.url,
     closedAt: Date.now(),
     favIconUrl: tabInfo.favIconUrl
   };
   
-  // 保存到存储
+  // Save to storage
   await saveClosedTab(closedTab);
   
-  // 从缓存中移除
+  // Remove from cache
   tabsCache.delete(tabId);
 });
 
-// 判断是否为内部页面
+// Check if it's an internal page
 function isInternalPage(url) {
   if (!url) return true;
   
@@ -103,7 +103,7 @@ function isInternalPage(url) {
   return internalPrefixes.some(prefix => url.startsWith(prefix));
 }
 
-// 生成简单的UUID
+// Generate simple UUID
 function generateUUID() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
     const r = Math.random() * 16 | 0;
@@ -112,35 +112,35 @@ function generateUUID() {
   });
 }
 
-// 保存关闭的标签页
+// Save closed tab
 async function saveClosedTab(closedTab) {
-  // 获取配置
+  // Get configuration
   const configResult = await chrome.storage.sync.get('config');
   const config = configResult.config || DEFAULT_CONFIG;
   
-  // 获取现有的关闭标签页列表
+  // Get existing closed tabs list
   const result = await chrome.storage.local.get('closedTabs');
   let closedTabs = result.closedTabs || [];
   
-  // 添加到列表开头（最新的在前）
+  // Add to the beginning of the list (newest first)
   closedTabs.unshift(closedTab);
   
-  // 限制数量
+  // Limit quantity
   if (closedTabs.length > config.maxHistorySize) {
     closedTabs = closedTabs.slice(0, config.maxHistorySize);
   }
   
-  // 保存
+  // Save
   await chrome.storage.local.set({ closedTabs });
 }
 
-// 监听来自popup的消息
+// Listen for messages from popup
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'getClosedTabs') {
     chrome.storage.local.get('closedTabs', (result) => {
       sendResponse({ closedTabs: result.closedTabs || [] });
     });
-    return true; // 保持消息通道开启
+    return true; // Keep message channel open
   }
   
   if (request.action === 'removeClosedTab') {

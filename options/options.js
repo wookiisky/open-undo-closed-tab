@@ -1,16 +1,16 @@
-// options.js - 配置页面逻辑
+// options.js - Options page logic
 
-// 默认配置
+// Default configuration
 const DEFAULT_CONFIG = {
     maxHistorySize: 500,
-    itemsPerPage: 20,
-    popupWidth: 400,
-    popupHeight: 600,
+    itemsPerPage: 10,
+    popupWidth: 600,
+    popupHeight: 480,
     removeAfterRestore: false,
     theme: 'dark'
 };
 
-// DOM元素
+// DOM elements
 let maxHistorySizeInput;
 let itemsPerPageInput;
 let popupWidthInput;
@@ -27,9 +27,9 @@ let clearBtn;
 let status;
 let stats;
 
-// 初始化
+// Initialize
 document.addEventListener('DOMContentLoaded', () => {
-    // 获取DOM元素
+    // Get DOM elements
     maxHistorySizeInput = document.getElementById('maxHistorySize');
     itemsPerPageInput = document.getElementById('itemsPerPage');
     popupWidthInput = document.getElementById('popupWidth');
@@ -46,17 +46,17 @@ document.addEventListener('DOMContentLoaded', () => {
     status = document.getElementById('status');
     stats = document.getElementById('stats');
 
-    // 加载配置
+    // Load configuration
     loadConfig();
 
-    // 加载统计
+    // Load statistics
     loadStats();
 
-    // 绑定事件
+    // Bind events
     bindEvents();
 });
 
-// 加载配置
+// Load configuration
 function loadConfig() {
     chrome.storage.sync.get('config', (result) => {
         const config = result.config || DEFAULT_CONFIG;
@@ -67,7 +67,7 @@ function loadConfig() {
         popupHeightInput.value = config.popupHeight;
         removeAfterRestoreInput.checked = config.removeAfterRestore;
         
-        // 设置主题
+        // Set theme
         const theme = config.theme || 'dark';
         if (theme === 'dark') {
             themeDarkInput.checked = true;
@@ -75,20 +75,20 @@ function loadConfig() {
             themeLightInput.checked = true;
         }
         
-        // 应用主题
+        // Apply theme
         applyTheme(theme);
     });
 }
 
-// 加载统计
+// Load statistics
 function loadStats() {
     chrome.storage.local.get('closedTabs', (result) => {
         const count = (result.closedTabs || []).length;
-        stats.innerHTML = `当前记录数: <strong>${count}</strong>`;
+        stats.innerHTML = `Current records: <strong>${count}</strong>`;
     });
 }
 
-// 绑定事件
+// Bind events
 function bindEvents() {
     saveBtn.addEventListener('click', saveConfig);
     resetBtn.addEventListener('click', resetConfig);
@@ -97,7 +97,7 @@ function bindEvents() {
     importFile.addEventListener('change', importData);
     clearBtn.addEventListener('click', clearData);
     
-    // 主题切换实时预览
+    // Theme switching real-time preview
     themeDarkInput.addEventListener('change', () => {
         if (themeDarkInput.checked) {
             applyTheme('dark');
@@ -110,31 +110,31 @@ function bindEvents() {
     });
 }
 
-// 保存配置
+// Save configuration
 function saveConfig() {
-    // 验证输入
+    // Validate input
     const maxHistorySize = parseInt(maxHistorySizeInput.value);
     const itemsPerPage = parseInt(itemsPerPageInput.value);
     const popupWidth = parseInt(popupWidthInput.value);
     const popupHeight = parseInt(popupHeightInput.value);
 
     if (maxHistorySize < 10 || maxHistorySize > 5000) {
-        showStatus('error', '最大保存数量必须在10-5000之间');
+        showStatus('error', 'Max history size must be between 10-5000');
         return;
     }
 
     if (itemsPerPage < 5 || itemsPerPage > 100) {
-        showStatus('error', '每页显示数量必须在5-100之间');
+        showStatus('error', 'Items per page must be between 5-100');
         return;
     }
 
     if (popupWidth < 300 || popupWidth > 600) {
-        showStatus('error', '弹层宽度必须在300-600之间');
+        showStatus('error', 'Popup width must be between 300-600');
         return;
     }
 
     if (popupHeight < 200 || popupHeight > 480) {
-        showStatus('error', '弹层高度必须在200-480之间');
+        showStatus('error', 'Popup height must be between 200-480');
         return;
     }
 
@@ -150,16 +150,16 @@ function saveConfig() {
     };
 
     chrome.storage.sync.set({ config }, () => {
-        showStatus('success', '✓ 设置已保存');
+        showStatus('success', '✓ Settings saved');
 
-        // 如果修改了最大保存数量，需要清理超出的记录
+        // If max history size is changed, need to trim excess records
         if (maxHistorySize !== DEFAULT_CONFIG.maxHistorySize) {
             trimHistory(maxHistorySize);
         }
     });
 }
 
-// 清理超出限制的历史记录
+// Trim history records exceeding limit
 function trimHistory(maxSize) {
     chrome.storage.local.get('closedTabs', (result) => {
         let closedTabs = result.closedTabs || [];
@@ -173,23 +173,23 @@ function trimHistory(maxSize) {
     });
 }
 
-// 恢复默认配置
+// Reset to default configuration
 function resetConfig() {
-    if (confirm('确定要恢复默认设置吗？')) {
+    if (confirm('Are you sure you want to reset to default settings?')) {
         chrome.storage.sync.set({ config: DEFAULT_CONFIG }, () => {
             loadConfig();
-            showStatus('success', '✓ 已恢复默认设置');
+            showStatus('success', '✓ Reset to default settings');
         });
     }
 }
 
-// 导出数据
+// Export data
 function exportData() {
     chrome.storage.local.get('closedTabs', (result) => {
         const closedTabs = result.closedTabs || [];
 
         if (closedTabs.length === 0) {
-            showStatus('error', '没有可导出的记录');
+            showStatus('error', 'No records to export');
             return;
         }
 
@@ -205,11 +205,11 @@ function exportData() {
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
 
-        showStatus('success', `✓ 已导出 ${closedTabs.length} 条记录`);
+        showStatus('success', `✓ Exported ${closedTabs.length} records`);
     });
 }
 
-// 导入数据
+// Import data
 function importData(event) {
     const file = event.target.files[0];
     if (!file) return;
@@ -220,25 +220,25 @@ function importData(event) {
             const importedTabs = JSON.parse(e.target.result);
 
             if (!Array.isArray(importedTabs)) {
-                showStatus('error', '导入文件格式错误');
+                showStatus('error', 'Invalid import file format');
                 return;
             }
 
-            // 验证数据格式
+            // Validate data format
             const validTabs = importedTabs.filter(tab =>
                 tab.id && tab.title && tab.url && tab.closedAt
             );
 
             if (validTabs.length === 0) {
-                showStatus('error', '导入文件中没有有效数据');
+                showStatus('error', 'No valid data in import file');
                 return;
             }
 
-            // 合并到现有数据
+            // Merge with existing data
             chrome.storage.local.get('closedTabs', (result) => {
                 let closedTabs = result.closedTabs || [];
 
-                // 去重：根据URL和时间戳
+                // Deduplicate: based on URL and timestamp
                 const existingKeys = new Set(
                     closedTabs.map(tab => `${tab.url}_${tab.closedAt}`)
                 );
@@ -249,7 +249,7 @@ function importData(event) {
 
                 closedTabs = [...newTabs, ...closedTabs];
 
-                // 应用数量限制
+                // Apply quantity limit
                 chrome.storage.sync.get('config', (configResult) => {
                     const config = configResult.config || DEFAULT_CONFIG;
                     if (closedTabs.length > config.maxHistorySize) {
@@ -258,49 +258,49 @@ function importData(event) {
 
                     chrome.storage.local.set({ closedTabs }, () => {
                         loadStats();
-                        showStatus('success', `✓ 已导入 ${newTabs.length} 条新记录`);
+                        showStatus('success', `✓ Imported ${newTabs.length} new records`);
                     });
                 });
             });
 
         } catch (error) {
-            showStatus('error', '导入失败：' + error.message);
+            showStatus('error', 'Import failed: ' + error.message);
         }
     };
 
     reader.readAsText(file);
 
-    // 重置文件输入
+    // Reset file input
     event.target.value = '';
 }
 
-// 清空所有数据
+// Clear all data
 function clearData() {
     chrome.storage.local.get('closedTabs', (result) => {
         const count = (result.closedTabs || []).length;
 
         if (count === 0) {
-            showStatus('error', '没有可清空的记录');
+            showStatus('error', 'No records to clear');
             return;
         }
 
-        if (confirm(`确定要清空所有 ${count} 条记录吗？此操作无法撤销。`)) {
+        if (confirm(`Are you sure you want to clear all ${count} records? This action cannot be undone.`)) {
             chrome.runtime.sendMessage({ action: 'clearAllClosedTabs' }, (response) => {
                 if (response.success) {
                     loadStats();
-                    showStatus('success', '✓ 已清空所有记录');
+                    showStatus('success', '✓ Cleared all records');
                 }
             });
         }
     });
 }
 
-// 应用主题
+// Apply theme
 function applyTheme(theme) {
     document.body.setAttribute('data-theme', theme);
 }
 
-// 显示状态消息
+// Show status message
 let statusTimeout;
 function showStatus(type, message) {
     clearTimeout(statusTimeout);

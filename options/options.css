@@ -1,4 +1,4 @@
-/* 重置和基础样式 */
+/* Reset and base styles */
 * {
     margin: 0;
     padding: 0;
@@ -18,7 +18,7 @@ body {
     margin: 0 auto;
 }
 
-/* 头部 */
+/* Header */
 .header {
     text-align: center;
     margin-bottom: 24px;
@@ -36,7 +36,7 @@ body {
     color: #888;
 }
 
-/* 卡片 */
+/* Card */
 .card {
     background: #222;
     border: 1px solid #333;
@@ -52,7 +52,7 @@ body {
     color: #e5e5e5;
 }
 
-/* 表单组 */
+/* Form group */
 .form-group {
     margin-bottom: 14px;
 }
@@ -93,7 +93,7 @@ body {
     border-color: #22c55e;
 }
 
-/* 复选框组 */
+/* Checkbox group */
 .checkbox-group label {
     display: flex;
     align-items: center;
@@ -113,14 +113,14 @@ body {
     font-size: 13px;
 }
 
-/* 表单行 */
+/* Form row */
 .form-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 12px;
 }
 
-/* 数据操作 */
+/* Data actions */
 .data-actions {
     display: flex;
     gap: 8px;
@@ -142,7 +142,7 @@ body {
     font-weight: 600;
 }
 
-/* 按钮 */
+/* Buttons */
 .primary-btn,
 .secondary-btn,
 .danger-btn {
@@ -194,7 +194,7 @@ body {
     border-color: #5a3030;
 }
 
-/* 操作区 */
+/* Actions area */
 .actions {
     display: flex;
     gap: 8px;
@@ -202,7 +202,7 @@ body {
     margin-top: 20px;
 }
 
-/* 状态提示 */
+/* Status message */
 .status {
     margin-top: 16px;
     padding: 10px 14px;
@@ -229,7 +229,7 @@ body {
     color: #ef4444;
 }
 
-/* 单选按钮组 */
+/* Radio button group */
 .radio-group {
     display: flex;
     gap: 10px;
@@ -272,7 +272,7 @@ body {
     transition: color 0.15s;
 }
 
-/* 浅色主题 */
+/* Light theme */
 body[data-theme="light"] {
     background: #fff;
     color: #1a1a1a;
@@ -382,7 +382,7 @@ body[data-theme="light"] .status.error {
     color: #dc2626;
 }
 
-/* 响应式 */
+/* Responsive */
 @media (max-width: 600px) {
     body {
         padding: 16px 12px;
