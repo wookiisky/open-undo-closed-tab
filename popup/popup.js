@@ -9,7 +9,6 @@ let config = {
     itemsPerPage: 20,
     popupWidth: 400,
     popupHeight: 600,
-    removeAfterRestore: false,
     theme: 'dark'
 };
 
@@ -435,23 +434,20 @@ async function openTab(tab) {
     try {
         await chrome.tabs.create({ url: tab.url });
 
-        // If configured to remove after restore
-        if (config.removeAfterRestore) {
-            chrome.runtime.sendMessage({
-                action: 'removeClosedTab',
-                tabId: tab.id
-            }, async () => {
-                // Reload data
-                await loadClosedTabs();
+        chrome.runtime.sendMessage({
+            action: 'removeClosedTab',
+            tabId: tab.id
+        }, async () => {
+            // Reload data
+            await loadClosedTabs();
 
-                // If search box has content, re-apply search
-                if (searchInput.value.trim()) {
-                    handleSearch(searchInput.value);
-                } else {
-                    renderCurrentPage();
-                }
-            });
-        }
+            // If search box has content, re-apply search
+            if (searchInput.value.trim()) {
+                handleSearch(searchInput.value);
+            } else {
+                renderCurrentPage();
+            }
+        });
     } catch (error) {
         console.error('Failed to open tab:', error);
         alert('Unable to open this URL');

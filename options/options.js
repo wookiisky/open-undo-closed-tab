@@ -6,7 +6,6 @@ const DEFAULT_CONFIG = {
     itemsPerPage: 10,
     popupWidth: 600,
     popupHeight: 480,
-    removeAfterRestore: false,
     theme: 'dark'
 };
 
@@ -15,7 +14,6 @@ let maxHistorySizeInput;
 let itemsPerPageInput;
 let popupWidthInput;
 let popupHeightInput;
-let removeAfterRestoreInput;
 let themeDarkInput;
 let themeLightInput;
 let saveBtn;
@@ -34,7 +32,6 @@ document.addEventListener('DOMContentLoaded', () => {
     itemsPerPageInput = document.getElementById('itemsPerPage');
     popupWidthInput = document.getElementById('popupWidth');
     popupHeightInput = document.getElementById('popupHeight');
-    removeAfterRestoreInput = document.getElementById('removeAfterRestore');
     themeDarkInput = document.getElementById('themeDark');
     themeLightInput = document.getElementById('themeLight');
     saveBtn = document.getElementById('saveBtn');
@@ -65,7 +62,6 @@ function loadConfig() {
         itemsPerPageInput.value = config.itemsPerPage;
         popupWidthInput.value = config.popupWidth;
         popupHeightInput.value = config.popupHeight;
-        removeAfterRestoreInput.checked = config.removeAfterRestore;
         
         // Set theme
         const theme = config.theme || 'dark';
@@ -145,7 +141,6 @@ function saveConfig() {
         itemsPerPage,
         popupWidth,
         popupHeight,
-        removeAfterRestore: removeAfterRestoreInput.checked,
         theme
     };
 

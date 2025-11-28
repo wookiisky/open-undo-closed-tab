@@ -31,7 +31,7 @@ A powerful Chrome extension for recording, searching, and restoring closed tabs.
 
 2. **Restore Tabs**
    - Click any item in the list to restore that tab
-   - Optionally remove from list after restore (configure in settings)
+   - Restored tabs are automatically removed from the history list
 
 3. **Search Function**
    - Enter keywords in the top search box
@@ -49,7 +49,6 @@ Click the settings button ⚙️ in the top right of the popup to enter the conf
 #### Basic Settings
 - **Max History Size**: Set the maximum number of closed tabs to keep (10-5000, default 500)
 - **Items Per Page**: Set number of tabs to display per page in popup (5-100, default 20)
-- **Remove After Restore**: When checked, tabs are automatically removed from history after opening
 
 #### Popup Appearance
 - **Theme Selection**: Choose dark or light theme

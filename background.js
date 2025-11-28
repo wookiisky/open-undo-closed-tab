@@ -5,8 +5,7 @@ const DEFAULT_CONFIG = {
   maxHistorySize: 500,
   itemsPerPage: 20,
   popupWidth: 400,
-  popupHeight: 600,
-  removeAfterRestore: false
+  popupHeight: 600
 };
 
 // Initialize: set default configuration
@@ -122,8 +121,21 @@ async function saveClosedTab(closedTab) {
   const result = await chrome.storage.local.get('closedTabs');
   let closedTabs = result.closedTabs || [];
   
-  // Add to the beginning of the list (newest first)
-  closedTabs.unshift(closedTab);
+  // If a tab with the same URL already exists, update its info and move it to the top
+  const existingIndex = closedTabs.findIndex(tab => tab.url === closedTab.url);
+  if (existingIndex !== -1) {
+    const existingTab = closedTabs[existingIndex];
+    const updatedTab = {
+      ...existingTab,
+      ...closedTab,
+      id: existingTab.id // keep original id to avoid creating a new record
+    };
+    closedTabs.splice(existingIndex, 1);
+    closedTabs.unshift(updatedTab);
+  } else {
+    // Add to the beginning of the list (newest first)
+    closedTabs.unshift(closedTab);
+  }
   
   // Limit quantity
   if (closedTabs.length > config.maxHistorySize) {
