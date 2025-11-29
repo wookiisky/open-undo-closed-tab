@@ -26,8 +26,10 @@ let pageNumbersContainer;
 let settingsBtn;
 
 // Virtual scroll configuration
-const ITEM_HEIGHT = 42; // Fixed height per item (compact)
+const DEFAULT_ITEM_HEIGHT = 42; // Preferred height per item
+const MIN_ITEM_HEIGHT = 26; // Compact height to fit default popup size
 const BUFFER_SIZE = 5; // Buffer size (5 items above and below)
+let itemHeight = DEFAULT_ITEM_HEIGHT;
 
 // Initialize
 document.addEventListener('DOMContentLoaded', async () => {
@@ -85,6 +87,30 @@ function applyPopupSize() {
         document.body.style.width = `${config.popupWidth}px`;
         document.body.style.height = `${config.popupHeight}px`;
     }
+    document.documentElement.style.setProperty('--item-height', `${itemHeight}px`);
+}
+
+// Adjust item height so a full page fits when possible
+function updateItemSizing() {
+    const availableHeight = (virtualScrollWrapper?.clientHeight) ||
+        (listContainer?.clientHeight) || 0;
+
+    if (!availableHeight || !config?.itemsPerPage) {
+        return;
+    }
+
+    const fitHeight = Math.floor(availableHeight / config.itemsPerPage);
+    const targetHeight = Math.max(
+        MIN_ITEM_HEIGHT,
+        Math.min(DEFAULT_ITEM_HEIGHT, fitHeight || DEFAULT_ITEM_HEIGHT)
+    );
+
+    itemHeight = targetHeight;
+
+    const useCompact = targetHeight < DEFAULT_ITEM_HEIGHT;
+    document.body.classList.toggle('compact', useCompact);
+
+    document.documentElement.style.setProperty('--item-height', `${itemHeight}px`);
 }
 
 // Load closed tabs
@@ -233,6 +259,9 @@ function renderCurrentPage() {
         virtualScrollWrapper.style.display = 'block';
     }
 
+    // Adjust row height so a page fits without a scrollbar when possible
+    updateItemSizing();
+
     // Render using virtual scroll
     renderVirtualList(currentPageTabs);
 }
@@ -240,7 +269,7 @@ function renderCurrentPage() {
 // Virtual scroll render
 function renderVirtualList(tabs) {
     // Set total scroll area height
-    const totalHeight = tabs.length * ITEM_HEIGHT;
+    const totalHeight = tabs.length * itemHeight;
     scrollSpacer.style.height = `${totalHeight}px`;
 
     // Reset scroll position
@@ -279,8 +308,8 @@ function renderVisibleItems(tabs, scrollTop) {
     const containerHeight = virtualScrollWrapper.clientHeight;
 
     // Calculate visible range
-    const startIndex = Math.floor(scrollTop / ITEM_HEIGHT);
-    const endIndex = Math.ceil((scrollTop + containerHeight) / ITEM_HEIGHT);
+    const startIndex = Math.floor(scrollTop / itemHeight);
+    const endIndex = Math.ceil((scrollTop + containerHeight) / itemHeight);
 
     // Add buffer
     const bufferedStart = Math.max(0, startIndex - BUFFER_SIZE);
@@ -297,7 +326,7 @@ function renderVisibleItems(tabs, scrollTop) {
     scrollContent.innerHTML = '';
 
     // Set offset
-    scrollContent.style.transform = `translateY(${bufferedStart * ITEM_HEIGHT}px)`;
+    scrollContent.style.transform = `translateY(${bufferedStart * itemHeight}px)`;
 
     const fragment = document.createDocumentFragment();
     for (let i = bufferedStart; i < bufferedEnd; i++) {
@@ -329,7 +358,7 @@ function handleScroll() {
 function createTabItem(tab, index) {
     const item = document.createElement('div');
     item.className = 'tab-item';
-    item.style.height = `${ITEM_HEIGHT}px`;
+    item.style.height = `${itemHeight}px`;
 
     // Icon
     const favicon = document.createElement('img');
