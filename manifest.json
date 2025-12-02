@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
-  "name": "Open Undo Closed Tab",
-  "version": "1.1.1",
+  "name": "Undo Closed Tab Speed",
+  "version": "1.1.2",
   "description": "Closed tab manager, Open source, Performance optimized",
   "permissions": [
     "tabs",

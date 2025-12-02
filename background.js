@@ -3,9 +3,9 @@
 // Default configuration
 const DEFAULT_CONFIG = {
   maxHistorySize: 500,
-  itemsPerPage: 20,
-  popupWidth: 400,
-  popupHeight: 600
+  itemsPerPage: 10,
+  popupWidth: 500,
+  popupHeight: 480
 };
 
 // Initialize: set default configuration

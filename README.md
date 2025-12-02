@@ -1,4 +1,4 @@
-# Open Undo Close Tab - Chrome Extension
+# Undo Close Tab Speed - Chrome Extension
 
 A powerful Chrome extension for recording, searching, and restoring closed tabs.
 
