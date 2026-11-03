@@ -1,5 +1,7 @@
 {
   "manifest_version": 3,
+  "minimum_chrome_version": "102",
+  "default_locale": "en",
   "name": "Undo Closed Tab Speed",
   "version": "1.1.2",
   "description": "Closed tab manager, Open source, Performance optimized",

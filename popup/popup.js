@@ -4,13 +4,11 @@
 let allClosedTabs = [];
 let filteredTabs = [];
 let currentPage = 1;
-let config = {
-    maxHistorySize: 500,
-    itemsPerPage: 20,
-    popupWidth: 400,
-    popupHeight: 600,
-    theme: 'dark'
-};
+// Ignore an initial read if a newer storage event already supplied the history.
+let historyRevision = 0;
+// Storage updates may arrive while the initial configuration is still loading.
+let popupReady = false;
+let config = { ...ExtensionConfig.defaults };
 
 // DOM elements
 let searchInput;
@@ -46,19 +44,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     pageNumbersContainer = document.getElementById('pageNumbers');
     settingsBtn = document.getElementById('settingsBtn');
 
-    // Load configuration
-    await loadConfig();
+    chrome.storage.onChanged.addListener(handleHistoryChange);
+
+    // Start both local reads together; opening the popup need not wake the worker.
+    await Promise.all([loadConfig(), loadClosedTabs()]);
 
     // Apply popup size configuration
     applyPopupSize();
-
-    // Load data
-    await loadClosedTabs();
 
     // Bind events
     bindEvents();
 
     // Initial render
+    popupReady = true;
     renderCurrentPage();
 });
 
@@ -66,9 +64,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 async function loadConfig() {
     return new Promise((resolve) => {
         chrome.storage.sync.get('config', (result) => {
-            if (result.config) {
-                config = { ...config, ...result.config };
-            }
+            config = ExtensionConfig.normalize(result.config);
             // Apply theme
             applyTheme(config.theme);
             resolve();
@@ -115,13 +111,33 @@ function updateItemSizing() {
 
 // Load closed tabs
 async function loadClosedTabs() {
+    const revision = historyRevision;
     return new Promise((resolve) => {
-        chrome.runtime.sendMessage({ action: 'getClosedTabs' }, (response) => {
-            allClosedTabs = response.closedTabs || [];
-            filteredTabs = [...allClosedTabs];
+        chrome.storage.local.get('closedTabs', (result) => {
+            if (revision === historyRevision) updateClosedTabs(result.closedTabs || []);
             resolve();
         });
     });
+}
+
+// Sort once before searching or paginating the records.
+function updateClosedTabs(tabs) {
+    allClosedTabs = tabs.sort((a, b) => b.closedAt - a.closedAt);
+    filteredTabs = allClosedTabs;
+}
+
+// Show a just-saved closure without making the initial render wait for the worker.
+function handleHistoryChange(changes, area) {
+    if (area !== 'local' || !changes.closedTabs) return;
+    historyRevision++;
+    updateClosedTabs(changes.closedTabs.newValue || []);
+    if (!popupReady) return;
+    if (searchInput.value.trim()) {
+        handleSearch(searchInput.value);
+    } else {
+        currentPage = Math.max(1, Math.min(currentPage, getTotalPages()));
+        renderCurrentPage();
+    }
 }
 
 // Bind events
@@ -140,7 +156,6 @@ function bindEvents() {
         if (currentPage > 1) {
             currentPage--;
             renderCurrentPage();
-            scrollToTop();
         }
     });
 
@@ -149,7 +164,6 @@ function bindEvents() {
         if (currentPage < totalPages) {
             currentPage++;
             renderCurrentPage();
-            scrollToTop();
         }
     });
 
@@ -167,7 +181,7 @@ function handleSearch(query) {
     const lowerQuery = query.toLowerCase().trim();
 
     if (!lowerQuery) {
-        filteredTabs = [...allClosedTabs];
+        filteredTabs = allClosedTabs;
     } else {
         filteredTabs = allClosedTabs.filter(tab => {
             const titleMatch = tab.title.toLowerCase().includes(lowerQuery);
@@ -226,7 +240,6 @@ function renderPageNumbers(currentPageNum, totalPages) {
         pageLink.addEventListener('click', () => {
             currentPage = pageNum;
             renderCurrentPage();
-            scrollToTop();
         });
         pageNumbersContainer.appendChild(pageLink);
     });
@@ -234,6 +247,11 @@ function renderPageNumbers(currentPageNum, totalPages) {
 
 // Render current page
 function renderCurrentPage() {
+    // Discard work scheduled for the previous page or search results.
+    if (scrollFrame !== null) {
+        cancelAnimationFrame(scrollFrame);
+        scrollFrame = null;
+    }
     const totalPages = getTotalPages();
 
     // Update pagination info
@@ -278,27 +296,7 @@ function renderVirtualList(tabs) {
     // Reset visible range, force re-render
     currentVisibleRange = { start: -1, end: -1 };
 
-    // If items less than one screen, render all directly
-    if (tabs.length <= 10) {
-        renderAllItems(tabs);
-    } else {
-        // Initial render of visible items
-        renderVisibleItems(tabs, 0);
-    }
-}
-
-// Render all items (when data is small)
-function renderAllItems(tabs) {
-    scrollContent.innerHTML = '';
-    scrollContent.style.transform = 'translateY(0px)';
-
-    const fragment = document.createDocumentFragment();
-    tabs.forEach((tab, index) => {
-        const item = createTabItem(tab, index);
-        fragment.appendChild(item);
-    });
-
-    scrollContent.appendChild(fragment);
+    renderVisibleItems(tabs, 0);
 }
 
 // Render visible items (virtual scroll)
@@ -330,32 +328,29 @@ function renderVisibleItems(tabs, scrollTop) {
 
     const fragment = document.createDocumentFragment();
     for (let i = bufferedStart; i < bufferedEnd; i++) {
-        const item = createTabItem(tabs[i], i);
+        const item = createTabItem(tabs[i]);
         fragment.appendChild(item);
     }
 
     scrollContent.appendChild(fragment);
 }
 
-// Handle scroll event
-let scrollTimeout;
+// Coalesce scroll events into one render per frame without postponing that frame.
+let scrollFrame = null;
 function handleScroll() {
-    clearTimeout(scrollTimeout);
-
-    scrollTimeout = setTimeout(() => {
+    if (scrollFrame !== null) return;
+    scrollFrame = requestAnimationFrame(() => {
+        scrollFrame = null;
         const startIndex = (currentPage - 1) * config.itemsPerPage;
         const endIndex = startIndex + config.itemsPerPage;
         const currentPageTabs = filteredTabs.slice(startIndex, endIndex);
 
-        if (currentPageTabs.length > 10) {
-            const scrollTop = virtualScrollWrapper.scrollTop;
-            renderVisibleItems(currentPageTabs, scrollTop);
-        }
-    }, 16); // ~60fps
+        renderVisibleItems(currentPageTabs, virtualScrollWrapper.scrollTop);
+    });
 }
 
 // Create tab item
-function createTabItem(tab, index) {
+function createTabItem(tab) {
     const item = document.createElement('div');
     item.className = 'tab-item';
     item.style.height = `${itemHeight}px`;
@@ -381,12 +376,12 @@ function createTabItem(tab, index) {
     // Title
     const title = document.createElement('div');
     title.className = 'tab-title';
-    title.innerHTML = highlightText(tab.title, searchInput.value);
+    title.appendChild(highlightText(tab.title, searchInput.value));
 
     // URL
     const url = document.createElement('div');
     url.className = 'tab-url';
-    url.innerHTML = highlightText(tab.url, searchInput.value);
+    url.appendChild(highlightText(tab.url, searchInput.value));
 
     info.appendChild(title);
     info.appendChild(url);
@@ -408,24 +403,51 @@ function createTabItem(tab, index) {
     return item;
 }
 
-// Highlight text
+// Match literal text before creating nodes, so HTML and regex syntax stay ordinary text.
 function highlightText(text, query) {
-    if (!query || !query.trim()) {
-        return escapeHtml(text);
+    const fragment = document.createDocumentFragment();
+    const needle = query.trim().toLowerCase();
+    const lowerText = text.toLowerCase();
+    let match = needle ? lowerText.indexOf(needle) : -1;
+    if (match === -1) {
+        fragment.appendChild(document.createTextNode(text));
+        return fragment;
     }
 
-    const escapedText = escapeHtml(text);
-    const escapedQuery = escapeHtml(query.trim());
-    const regex = new RegExp(`(${escapedQuery})`, 'gi');
+    // Some characters expand when lowercased (İ → i + combining dot).
+    // Map only those strings back to original offsets to preserve their visible text.
+    let starts;
+    let ends;
+    if (lowerText.length !== text.length) {
+        starts = [];
+        ends = [];
+        let offset = 0;
+        for (const character of text) {
+            const length = character.toLowerCase().length;
+            for (let index = 0; index < length; index++) {
+                starts.push(offset);
+                ends.push(offset + character.length);
+            }
+            offset += character.length;
+        }
+    }
 
-    return escapedText.replace(regex, '<span class="highlight">$1</span>');
-}
-
-// Escape HTML
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
+    let cursor = 0;
+    while (match !== -1) {
+        const start = starts ? starts[match] : match;
+        const end = ends ? ends[match + needle.length - 1] : match + needle.length;
+        if (start >= cursor) {
+            fragment.appendChild(document.createTextNode(text.slice(cursor, start)));
+            const highlight = document.createElement('span');
+            highlight.className = 'highlight';
+            highlight.textContent = text.slice(start, end);
+            fragment.appendChild(highlight);
+            cursor = end;
+        }
+        match = lowerText.indexOf(needle, match + needle.length);
+    }
+    fragment.appendChild(document.createTextNode(text.slice(cursor)));
+    return fragment;
 }
 
 // Format time
@@ -458,32 +480,26 @@ function getDefaultFavicon() {
     return 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="%23555"/><text x="8" y="12" font-size="10" text-anchor="middle" fill="%23fff">📄</text></svg>';
 }
 
-// Open tab
+// Keep duplicate clicks from creating multiple tabs while restoration is pending.
+const openingTabIds = new Set();
+
+// Let the worker finish restoration even when opening a tab closes this popup.
 async function openTab(tab) {
+    if (openingTabIds.has(tab.id)) return;
+    openingTabIds.add(tab.id);
     try {
-        await chrome.tabs.create({ url: tab.url });
-
-        chrome.runtime.sendMessage({
-            action: 'removeClosedTab',
+        const response = await chrome.runtime.sendMessage({
+            action: 'restoreClosedTab',
             tabId: tab.id
-        }, async () => {
-            // Reload data
-            await loadClosedTabs();
-
-            // If search box has content, re-apply search
-            if (searchInput.value.trim()) {
-                handleSearch(searchInput.value);
-            } else {
-                renderCurrentPage();
-            }
         });
+        if (!response?.success) {
+            const message = response?.created === false ? 'unableOpenUrl' : 'historyUpdateFailed';
+            alert(chrome.i18n.getMessage(message));
+        }
     } catch (error) {
-        console.error('Failed to open tab:', error);
-        alert('Unable to open this URL');
+        console.error('标签恢复失败', error);
+        alert(chrome.i18n.getMessage('historyUpdateFailed'));
+    } finally {
+        openingTabIds.delete(tab.id);
     }
-}
-
-// Scroll to top
-function scrollToTop() {
-    virtualScrollWrapper.scrollTop = 0;
 }

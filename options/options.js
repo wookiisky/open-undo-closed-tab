@@ -1,13 +1,7 @@
 // options.js - Options page logic
 
 // Default configuration
-const DEFAULT_CONFIG = {
-    maxHistorySize: 500,
-    itemsPerPage: 10,
-    popupWidth: 600,
-    popupHeight: 480,
-    theme: 'dark'
-};
+const DEFAULT_CONFIG = ExtensionConfig.defaults;
 
 // DOM elements
 let maxHistorySizeInput;
@@ -56,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // Load configuration
 function loadConfig() {
     chrome.storage.sync.get('config', (result) => {
-        const config = result.config || DEFAULT_CONFIG;
+        const config = ExtensionConfig.normalize(result.config);
 
         maxHistorySizeInput.value = config.maxHistorySize;
         itemsPerPageInput.value = config.itemsPerPage;
@@ -108,72 +102,62 @@ function bindEvents() {
 
 // Save configuration
 function saveConfig() {
-    // Validate input
-    const maxHistorySize = parseInt(maxHistorySizeInput.value);
-    const itemsPerPage = parseInt(itemsPerPageInput.value);
-    const popupWidth = parseInt(popupWidthInput.value);
-    const popupHeight = parseInt(popupHeightInput.value);
-
-    if (maxHistorySize < 10 || maxHistorySize > 5000) {
-        showStatus('error', 'Max history size must be between 10-5000');
-        return;
-    }
-
-    if (itemsPerPage < 5 || itemsPerPage > 100) {
-        showStatus('error', 'Items per page must be between 5-100');
-        return;
-    }
-
-    if (popupWidth < 300 || popupWidth > 600) {
-        showStatus('error', 'Popup width must be between 300-600');
-        return;
-    }
-
-    if (popupHeight < 200 || popupHeight > 480) {
-        showStatus('error', 'Popup height must be between 200-480');
-        return;
+    const fields = {
+        maxHistorySize: maxHistorySizeInput,
+        itemsPerPage: itemsPerPageInput,
+        popupWidth: popupWidthInput,
+        popupHeight: popupHeightInput
+    };
+    const values = {};
+    for (const [key, input] of Object.entries(fields)) {
+        const value = Number(input.value);
+        if (!ExtensionConfig.isValidNumber(key, value)) {
+            const { min, max } = ExtensionConfig.limits[key];
+            showStatus('error', chrome.i18n.getMessage('invalidSetting', [
+                chrome.i18n.getMessage(key), String(min), String(max)
+            ]));
+            input.focus?.();
+            return;
+        }
+        values[key] = value;
     }
 
     const theme = themeDarkInput.checked ? 'dark' : 'light';
 
-    const config = {
-        maxHistorySize,
-        itemsPerPage,
-        popupWidth,
-        popupHeight,
-        theme
-    };
+    const config = { ...values, theme };
 
     chrome.storage.sync.set({ config }, () => {
-        showStatus('success', '✓ Settings saved');
-
-        // If max history size is changed, need to trim excess records
-        if (maxHistorySize !== DEFAULT_CONFIG.maxHistorySize) {
-            trimHistory(maxHistorySize);
+        if (chrome.runtime.lastError) {
+            showStatus('error', chrome.i18n.getMessage('settingsSaveFailed'));
+            return;
         }
+        // Apply the limit even when returning to the default history size.
+        trimHistory(() => showStatus('success', chrome.i18n.getMessage('settingsSaved')));
     });
 }
 
 // Trim history records exceeding limit
-function trimHistory(maxSize) {
-    chrome.storage.local.get('closedTabs', (result) => {
-        let closedTabs = result.closedTabs || [];
-
-        if (closedTabs.length > maxSize) {
-            closedTabs = closedTabs.slice(0, maxSize);
-            chrome.storage.local.set({ closedTabs }, () => {
-                loadStats();
-            });
+function trimHistory(onSuccess) {
+    chrome.runtime.sendMessage({ action: 'trimClosedTabs' }, (response) => {
+        if (chrome.runtime.lastError || !response?.success) {
+            showStatus('error', chrome.i18n.getMessage('historyUpdateFailed'));
+            return;
         }
+        loadStats();
+        if (onSuccess) onSuccess();
     });
 }
 
 // Reset to default configuration
 function resetConfig() {
-    if (confirm('Are you sure you want to reset to default settings?')) {
+    if (confirm(chrome.i18n.getMessage('confirmSettingsReset'))) {
         chrome.storage.sync.set({ config: DEFAULT_CONFIG }, () => {
+            if (chrome.runtime.lastError) {
+                showStatus('error', chrome.i18n.getMessage('settingsSaveFailed'));
+                return;
+            }
             loadConfig();
-            showStatus('success', '✓ Reset to default settings');
+            trimHistory(() => showStatus('success', chrome.i18n.getMessage('settingsReset')));
         });
     }
 }
@@ -215,54 +199,30 @@ function importData(event) {
             const importedTabs = JSON.parse(e.target.result);
 
             if (!Array.isArray(importedTabs)) {
-                showStatus('error', 'Invalid import file format');
+                showStatus('error', chrome.i18n.getMessage('invalidImportFormat'));
                 return;
             }
 
-            // Validate data format
-            const validTabs = importedTabs.filter(tab =>
-                tab.id && tab.title && tab.url && tab.closedAt
-            );
-
-            if (validTabs.length === 0) {
-                showStatus('error', 'No valid data in import file');
-                return;
-            }
-
-            // Merge with existing data
-            chrome.storage.local.get('closedTabs', (result) => {
-                let closedTabs = result.closedTabs || [];
-
-                // Deduplicate: based on URL and timestamp
-                const existingKeys = new Set(
-                    closedTabs.map(tab => `${tab.url}_${tab.closedAt}`)
-                );
-
-                const newTabs = validTabs.filter(tab =>
-                    !existingKeys.has(`${tab.url}_${tab.closedAt}`)
-                );
-
-                closedTabs = [...newTabs, ...closedTabs];
-
-                // Apply quantity limit
-                chrome.storage.sync.get('config', (configResult) => {
-                    const config = configResult.config || DEFAULT_CONFIG;
-                    if (closedTabs.length > config.maxHistorySize) {
-                        closedTabs = closedTabs.slice(0, config.maxHistorySize);
-                    }
-
-                    chrome.storage.local.set({ closedTabs }, () => {
-                        loadStats();
-                        showStatus('success', `✓ Imported ${newTabs.length} new records`);
-                    });
-                });
+            // The worker merges and saves atomically with respect to tab closures.
+            chrome.runtime.sendMessage({ action: 'importClosedTabs', tabs: importedTabs }, (response) => {
+                if (chrome.runtime.lastError || !response?.success) {
+                    showStatus('error', chrome.i18n.getMessage('historyUpdateFailed'));
+                    return;
+                }
+                if (response.validCount === 0) {
+                    showStatus('error', chrome.i18n.getMessage('noValidImportData'));
+                    return;
+                }
+                loadStats();
+                showStatus('success', chrome.i18n.getMessage('importSuccess', String(response.importedCount)));
             });
 
         } catch (error) {
-            showStatus('error', 'Import failed: ' + error.message);
+            showStatus('error', chrome.i18n.getMessage('importFailed', error.message));
         }
     };
 
+    reader.onerror = () => showStatus('error', chrome.i18n.getMessage('importReadFailed'));
     reader.readAsText(file);
 
     // Reset file input

@@ -1,0 +1,71 @@
+{
+  "settingsSaved": {
+    "message": "\u2713 Settings saved"
+  },
+  "settingsReset": {
+    "message": "\u2713 Reset to default settings"
+  },
+  "historyUpdateFailed": {
+    "message": "Unable to update history. Please try again."
+  },
+  "invalidImportFormat": {
+    "message": "Invalid import file format"
+  },
+  "noValidImportData": {
+    "message": "No valid data in import file"
+  },
+  "importSuccess": {
+    "message": "\u2713 Imported $COUNT$ new records",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "importFailed": {
+    "message": "Import failed: $ERROR$",
+    "placeholders": {
+      "error": {
+        "content": "$1"
+      }
+    }
+  },
+  "unableOpenUrl": {
+    "message": "Unable to open this URL"
+  },
+  "settingsSaveFailed": {
+    "message": "Unable to save settings. Please try again."
+  },
+  "confirmSettingsReset": {
+    "message": "Are you sure you want to reset to default settings?"
+  },
+  "importReadFailed": {
+    "message": "Unable to read the selected file. Please try again."
+  },
+  "maxHistorySize": {
+    "message": "Max history size"
+  },
+  "itemsPerPage": {
+    "message": "Items per page"
+  },
+  "popupWidth": {
+    "message": "Popup width"
+  },
+  "popupHeight": {
+    "message": "Popup height"
+  },
+  "invalidSetting": {
+    "message": "$FIELD$ must be a whole number between $MIN$ and $MAX$.",
+    "placeholders": {
+      "field": {
+        "content": "$1"
+      },
+      "min": {
+        "content": "$2"
+      },
+      "max": {
+        "content": "$3"
+      }
+    }
+  }
+}
